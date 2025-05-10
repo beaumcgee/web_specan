@@ -1,35 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { SpectrumPlot } from './SpectrumPlot';
+import { useEffect, useState } from 'react';
+
+const darkTheme = createTheme({
+    palette: {
+        mode: 'dark',
+    },
+});
+
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [xData, setXData] = useState<number[]>([])
+    const [yData, setYData] = useState<number[]>([])
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    function distribute_values(start: number, end: number, count: number): number[] {
+        if (count <= 0) {
+            return [];
+        }
+
+        const step = (end - start) / (count - 1);
+        const result: number[] = [];
+
+        for (let i = 0; i < count; i++) {
+            result.push(start + step * i);
+        }
+
+        return result;
+    }
+
+    function get_random_float(min: number, max: number) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function gen_data() {
+        let tempXData: number[] = [];
+        let tempYData: number[] = [];
+
+        tempXData = distribute_values(0, 2000, 1024) // Generate frequency values
+
+        for (let i = 0; i < tempXData.length; i++) {
+            tempYData.push(get_random_float(-70, 0)) // Generate power values
+        }
+
+        setXData(tempXData);
+        setYData(tempYData);
+    }
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            gen_data();
+        }, 100);
+
+        return () => clearInterval(interval);
+    }, [])
+
+    return (
+        <ThemeProvider theme={darkTheme}>
+            <CssBaseline />
+            <div>
+                <SpectrumPlot xData={xData} yData={yData} />
+            </div>
+        </ThemeProvider>
+    )
 }
 
 export default App
