@@ -38,11 +38,19 @@ function App() {
         let tempXData: number[] = [];
         let tempYData: number[] = [];
 
-        tempXData = distribute_values(0, 2000, 1024) // Generate frequency values
+        // Generate frequency values
+        tempXData = distribute_values(0, 2000, 1024) 
 
-        for (let i = 0; i < tempXData.length; i++) {
-            tempYData.push(get_random_float(-70, 0)) // Generate power values
-        }
+        // Generate power values at each frequency value
+        tempXData.forEach((x) => {
+            if (x > 250 && x < 350) {
+                tempYData.push(get_random_float(-40, -50))
+            } else if (x > 1000 && x < 1400) {
+                tempYData.push(get_random_float(-30, -40))
+            } else {
+                tempYData.push(get_random_float(-70, -80))
+            }
+        })
 
         setXData(tempXData);
         setYData(tempYData);
