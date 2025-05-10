@@ -3,6 +3,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { SpectrumPlot } from './SpectrumPlot';
 import { useEffect, useState } from 'react';
+import { WaterfallPlot } from './WaterfallPlot';
 
 const darkTheme = createTheme({
     palette: {
@@ -12,8 +13,22 @@ const darkTheme = createTheme({
 
 
 function App() {
+    const numRows = 30;
+
     const [xData, setXData] = useState<number[]>([])
     const [yData, setYData] = useState<number[]>([])
+
+    const [waterfallRows] = useState<number[]>(range(1, numRows))
+    const [waterfallXData] = useState<number[][]>([]) // TODO: make this array contain numRows number of blank arrays on initial render
+    const [waterfallYData] = useState<number[][]>([]) // TODO: make this array contain numRows number of blank arrays on initial render
+
+    function range(start: number, end: number, step: number = 1): number[] {
+        const result: number[] = [];
+        for (let i = start; i <= end; i += step) {
+            result.push(i);
+        }
+        return result;
+    }
 
     function distribute_values(start: number, end: number, count: number): number[] {
         if (count <= 0) {
@@ -39,7 +54,7 @@ function App() {
         let tempYData: number[] = [];
 
         // Generate frequency values
-        tempXData = distribute_values(0, 2000, 1024) 
+        tempXData = distribute_values(0, 2000, 1024)
 
         // Generate power values at each frequency value
         tempXData.forEach((x) => {
@@ -52,8 +67,21 @@ function App() {
             }
         })
 
+        // Set x and y data for spectrum plots
         setXData(tempXData);
         setYData(tempYData);
+
+        // Update waterfall plot arrays of arrays
+        waterfallXData.unshift(tempXData);
+        waterfallYData.unshift(tempYData);
+
+        if (waterfallXData.length > numRows) {
+            waterfallXData.pop()
+        }
+
+        if (waterfallYData.length > numRows) {
+            waterfallYData.pop()
+        }
     }
 
     useEffect(() => {
@@ -69,6 +97,7 @@ function App() {
             <CssBaseline />
             <div>
                 <SpectrumPlot xData={xData} yData={yData} />
+                <WaterfallPlot waterfallXData={waterfallXData} waterfallYData={waterfallYData} waterfallRows={waterfallRows} />
             </div>
         </ThemeProvider>
     )
